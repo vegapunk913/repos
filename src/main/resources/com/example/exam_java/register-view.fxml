@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="580.0" prefWidth="440.0" styleClass="login-pane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.exam_java.RegisterController" stylesheets="@styles.css">
+   <center>
+      <ScrollPane fitToWidth="true" styleClass="login-scroll">
+         <VBox alignment="CENTER" spacing="24">
+               <padding>
+                  <Insets bottom="40" left="40" right="40" top="40" />
+               </padding>
+               <VBox alignment="CENTER" styleClass="login-card" spacing="20">
+            <padding>
+               <Insets bottom="32" left="40" right="40" top="32" />
+            </padding>
+            <StackPane styleClass="login-icon-bg">
+               <Label styleClass="login-icon-text" text="💬" />
+            </StackPane>
+            <Label styleClass="login-title" text="Créer un compte" />
+            <Label styleClass="login-subtitle" text="Rejoignez notre association" />
+            <VBox spacing="6">
+               <Label styleClass="login-field-label" text="Nom d'utilisateur" />
+               <TextField fx:id="txt_username" promptText="Choisissez un nom d'utilisateur" styleClass="login-input" />
+            </VBox>
+            <VBox spacing="6">
+               <Label styleClass="login-field-label" text="Mot de passe" />
+               <PasswordField fx:id="txt_password" promptText="Créez un mot de passe" styleClass="login-input" />
+            </VBox>
+            <VBox spacing="6">
+               <Label styleClass="login-field-label" text="Confirmer le mot de passe" />
+               <PasswordField fx:id="txt_password_confirm" promptText="Confirmez votre mot de passe" styleClass="login-input" />
+            </VBox>
+            <VBox spacing="6">
+               <Label styleClass="login-field-label" text="Rôle" />
+               <ComboBox fx:id="cbx_role" styleClass="login-combo" maxWidth="Infinity" />
+            </VBox>
+            <HBox alignment="CENTER" styleClass="btn-bar" spacing="10">
+               <Button mnemonicParsing="false" onAction="#onGoLogin" styleClass="btn-retour" text="Retour" />
+               <Button mnemonicParsing="false" onAction="#onRegister" styleClass="btn-login-primary" text="S'inscrire" minWidth="120" />
+            </HBox>
+            <HBox alignment="CENTER" spacing="4">
+               <Label styleClass="login-link-prefix" text="Déjà un compte ? " />
+               <Button mnemonicParsing="false" onAction="#onGoLogin" styleClass="btn-link" text="Se connecter" />
+            </HBox>
+            <Label fx:id="lbl_status" styleClass="login-status" text="" wrapText="true" />
+               </VBox>
+            </VBox>
+      </ScrollPane>
+   </center>
+</BorderPane>

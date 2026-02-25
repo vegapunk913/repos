@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="560.0" prefWidth="920.0" styleClass="admin-window" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.exam_java.AdminController" stylesheets="@styles.css">
+   <top>
+      <HBox alignment="CENTER_LEFT" styleClass="header-pane" spacing="12">
+         <padding>
+            <Insets bottom="12" left="20" right="20" top="12" />
+         </padding>
+         <HBox alignment="CENTER_LEFT" spacing="8">
+            <Label styleClass="sidebar-icon" text="💬" />
+            <VBox spacing="0">
+               <Label styleClass="sidebar-app-title" text="Messagerie Interne" />
+               <Label styleClass="sidebar-app-subtitle" text="Association &amp; Événements" />
+            </VBox>
+         </HBox>
+         <Region HBox.hgrow="ALWAYS" />
+         <Label styleClass="status-dot-label" text="●" />
+         <Label styleClass="header-role-badge" text="Administrateur" />
+         <Button mnemonicParsing="false" onAction="#onClose" styleClass="btn-retour" text="Retour" />
+      </HBox>
+   </top>
+   <center>
+      <HBox prefHeight="560" prefWidth="920">
+         <!-- Sidebar gauche (même design que la messagerie) -->
+         <VBox styleClass="sidebar" prefWidth="280" spacing="12">
+            <padding>
+               <Insets bottom="16" left="16" right="16" top="16" />
+            </padding>
+            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="admin-nav-selected">
+               <Label styleClass="sidebar-icon-admin" text="👥" />
+               <VBox spacing="0">
+                  <Label styleClass="sidebar-app-title" text="Administration" />
+                  <Label styleClass="sidebar-app-subtitle" text="Validation &amp; Gestion des membres" />
+               </VBox>
+            </HBox>
+            <Separator />
+            <HBox alignment="CENTER_LEFT" spacing="8">
+               <Label styleClass="sidebar-section-title" text="Membres" />
+            </HBox>
+            <TextField fx:id="txt_search" promptText="Rechercher un membre..." styleClass="search-field" onKeyReleased="#onSearchKey" />
+            <Label fx:id="lbl_validation_section" styleClass="sidebar-title" text="VALIDATION (0)" />
+            <ListView fx:id="list_pending" onMouseClicked="#onPendingSelected" prefHeight="120" styleClass="list-contacts" />
+            <HBox styleClass="btn-bar" spacing="10">
+               <Button mnemonicParsing="false" onAction="#onRefreshPending" styleClass="btn-secondary" text="Actualiser" />
+               <Button mnemonicParsing="false" onAction="#onValidate" styleClass="btn-send" text="Valider" />
+            </HBox>
+            <Label fx:id="lbl_validation_status" styleClass="login-status" text="" wrapText="true" />
+            <Separator />
+            <Label styleClass="sidebar-title" text="GESTION DES MEMBRES" />
+            <Region VBox.vgrow="ALWAYS" />
+         </VBox>
+         <!-- Zone principale (contenu blanc comme la maquette) -->
+         <VBox styleClass="placeholder-pane" HBox.hgrow="ALWAYS" spacing="12">
+            <padding>
+               <Insets bottom="16" left="16" right="16" top="16" />
+            </padding>
+            <Label styleClass="placeholder-title" text="Tous les utilisateurs" />
+            <TableView fx:id="table_users" prefHeight="280" styleClass="admin-table" onMouseClicked="#onTableUserSelected">
+               <columns>
+                  <TableColumn fx:id="col_username" text="Nom d'utilisateur" prefWidth="140" />
+                  <TableColumn fx:id="col_role" text="Rôle" prefWidth="100" />
+                  <TableColumn fx:id="col_compte" text="Compte" prefWidth="80" />
+                  <TableColumn fx:id="col_status" text="Statut" prefWidth="90" />
+               </columns>
+            </TableView>
+            <HBox styleClass="btn-bar" spacing="10">
+               <Button mnemonicParsing="false" onAction="#onCreateUser" styleClass="btn-send" text="Créer un utilisateur" />
+               <Button fx:id="btn_block" mnemonicParsing="false" onAction="#onBlockUser" styleClass="btn-secondary" text="Bloquer" />
+               <Button fx:id="btn_unblock" mnemonicParsing="false" onAction="#onUnblockUser" styleClass="btn-secondary" text="Débloquer" />
+               <Button mnemonicParsing="false" onAction="#onDeleteUser" styleClass="btn-logout" text="Supprimer" />
+            </HBox>
+            <Label fx:id="lbl_gestion_status" styleClass="login-status" text="" wrapText="true" />
+         </VBox>
+      </HBox>
+   </center>
+</BorderPane>

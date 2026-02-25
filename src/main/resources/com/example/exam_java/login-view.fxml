@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="520.0" prefWidth="440.0" styleClass="login-pane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.exam_java.LoginController" stylesheets="@styles.css">
+   <center>
+      <ScrollPane fitToWidth="true" styleClass="login-scroll">
+         <VBox alignment="CENTER" spacing="24">
+               <padding>
+                  <Insets bottom="40" left="40" right="40" top="40" />
+               </padding>
+               <VBox alignment="CENTER" styleClass="login-card" spacing="20">
+            <padding>
+               <Insets bottom="32" left="40" right="40" top="32" />
+            </padding>
+            <!-- Icône bulle de discussion (carré violet) -->
+            <StackPane styleClass="login-icon-bg">
+               <Label styleClass="login-icon-text" text="💬" />
+            </StackPane>
+            <Label styleClass="login-title" text="Messagerie Interne" />
+            <Label styleClass="login-subtitle" text="Connectez-vous à votre compte" />
+            <VBox spacing="6">
+               <Label styleClass="login-field-label" text="Nom d'utilisateur" />
+               <TextField fx:id="txt_username" promptText="Entrez votre nom d'utilisateur" styleClass="login-input" />
+            </VBox>
+            <VBox spacing="6">
+               <Label styleClass="login-field-label" text="Mot de passe" />
+               <PasswordField fx:id="txt_password" promptText="Entrez votre mot de passe" styleClass="login-input" />
+            </VBox>
+            <Button mnemonicParsing="false" onAction="#onLogin" styleClass="btn-login-primary" text="Se connecter" maxWidth="Infinity" />
+            <HBox alignment="CENTER" spacing="4">
+               <Label styleClass="login-link-prefix" text="Pas encore de compte ? " />
+               <Button fx:id="btn_go_register" mnemonicParsing="false" onAction="#onGoRegister" styleClass="btn-link" text="S'inscrire" />
+            </HBox>
+            <Label fx:id="lbl_status" styleClass="login-status" text="" wrapText="true" />
+            <!-- Paramètres serveur (discrets) -->
+            <Separator styleClass="login-sep" />
+            <VBox styleClass="login-server-section" spacing="6">
+               <TextField fx:id="txt_host" promptText="Hôte (ex: localhost)" text="localhost" styleClass="login-input-small" />
+               <TextField fx:id="txt_port" promptText="Port" text="9999" styleClass="login-input-small" />
+            </VBox>
+               </VBox>
+            </VBox>
+      </ScrollPane>
+   </center>
+</BorderPane>

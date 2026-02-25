@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="600.0" prefWidth="960.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.exam_java.MessagingController" stylesheets="@styles.css">
+   <padding>
+      <Insets bottom="0" left="0" right="0" top="0" />
+   </padding>
+   <top>
+      <HBox fx:id="headerPane" alignment="CENTER_RIGHT" spacing="12" styleClass="header-pane">
+         <padding>
+            <Insets bottom="12" left="20" right="20" top="12" />
+         </padding>
+         <Region HBox.hgrow="ALWAYS" />
+         <Label fx:id="lbl_status_dot" styleClass="status-dot-label" text="●" />
+         <Label fx:id="lbl_user_role" styleClass="header-role-badge" text="Membre" />
+         <Button fx:id="btn_logout" mnemonicParsing="false" onAction="#onLogout" styleClass="btn-logout" text="Déconnexion" />
+      </HBox>
+   </top>
+   <center>
+      <HBox prefHeight="600" prefWidth="960">
+         <!-- Sidebar gauche -->
+         <VBox styleClass="sidebar" prefWidth="280" spacing="12">
+            <padding>
+               <Insets bottom="16" left="16" right="16" top="16" />
+            </padding>
+            <HBox alignment="CENTER_LEFT" spacing="8">
+               <Label styleClass="sidebar-icon" text="💬" />
+               <VBox spacing="0">
+                  <Label styleClass="sidebar-app-title" text="Messagerie Interne" />
+                  <Label styleClass="sidebar-app-subtitle" text="Association &amp; Événements" />
+               </VBox>
+            </HBox>
+            <Separator />
+            <HBox alignment="CENTER_LEFT" spacing="8">
+               <Label styleClass="sidebar-section-title" text="Membres" />
+               <Label fx:id="lbl_online_count" styleClass="sidebar-badge-online" text="0 en ligne" />
+            </HBox>
+            <TextField fx:id="txt_search_member" promptText="Rechercher un membre..." styleClass="search-field" />
+            <Label fx:id="lbl_section_online" styleClass="sidebar-title" text="EN LIGNE (0)" />
+            <ListView fx:id="list_contacts_online" onMouseClicked="#onContactSelected" prefHeight="180" styleClass="list-contacts" />
+            <Label fx:id="lbl_section_offline" styleClass="sidebar-title" text="HORS LIGNE (0)" />
+            <ListView fx:id="list_contacts_offline" onMouseClicked="#onContactSelected" prefHeight="180" styleClass="list-contacts" />
+            <Region VBox.vgrow="ALWAYS" />
+            <Button fx:id="btn_administration" mnemonicParsing="false" onAction="#onOpenAdministration" styleClass="btn-secondary" text="Administration" visible="false" />
+            <Button fx:id="btn_list_members" mnemonicParsing="false" onAction="#onListMembers" styleClass="btn-secondary" text="Liste détaillée (Organisateur)" visible="false" />
+         </VBox>
+         <!-- Zone principale -->
+         <StackPane HBox.hgrow="ALWAYS" prefWidth="640">
+            <VBox fx:id="placeholderPane" alignment="CENTER" prefHeight="600" prefWidth="640" styleClass="placeholder-pane" spacing="12">
+               <Label styleClass="placeholder-icon" text="💬" />
+               <Label styleClass="placeholder-title" text="Aucune conversation sélectionnée" />
+               <Label styleClass="placeholder-text" text="Choisissez un membre dans la liste pour commencer à discuter" />
+            </VBox>
+            <VBox fx:id="conversationPane" managed="false" prefHeight="600" prefWidth="640" styleClass="conversation-pane" visible="false" spacing="12">
+               <padding>
+                  <Insets bottom="16" left="16" right="16" top="16" />
+               </padding>
+               <HBox alignment="CENTER_LEFT" styleClass="btn-bar" spacing="10">
+                  <Button mnemonicParsing="false" onAction="#onRetourConversation" styleClass="btn-retour" text="Retour" />
+                  <Label fx:id="lbl_conversation" text="Conversation avec " />
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Button mnemonicParsing="false" onAction="#onRefreshHistory" styleClass="btn-secondary" text="Actualiser" />
+               </HBox>
+               <TextArea fx:id="area_messages" editable="false" prefHeight="350" styleClass="area-messages" wrapText="true" VBox.vgrow="ALWAYS" />
+               <HBox fx:id="inputArea" alignment="CENTER_LEFT" styleClass="btn-bar input-area" spacing="10">
+                  <Button mnemonicParsing="false" onAction="#onSendFile" styleClass="btn-secondary" text="📎 Fichier" />
+                  <TextField fx:id="txt_message" onAction="#onSendMessage" prefWidth="350" promptText="Écrivez votre message..." styleClass="txt-message" HBox.hgrow="ALWAYS" />
+                  <Button mnemonicParsing="false" onAction="#onSendMessage" styleClass="btn-send" text="Envoyer" />
+                  <Button mnemonicParsing="false" onAction="#onDownloadFile" styleClass="btn-secondary" text="⬇ Télécharger" />
+               </HBox>
+               <Label fx:id="lbl_error" text="" wrapText="true" />
+            </VBox>
+         </StackPane>
+      </HBox>
+   </center>
+</BorderPane>

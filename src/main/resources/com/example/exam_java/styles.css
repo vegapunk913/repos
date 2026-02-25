@@ -1,0 +1,502 @@
+/* Messagerie Interne - Design selon maquettes (fond clair, violet, cartes blanches) */
+
+.root {
+    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -fx-font-size: 13px;
+    -fx-background-color: #f5f6fa;
+}
+
+/* ========== LOGIN / INSCRIPTION ========== */
+.login-pane {
+    -fx-background-color: #eef0f4;
+}
+
+.login-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-fit-to-width: true;
+}
+
+.login-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.login-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-padding: 0 2 0 0;
+}
+
+.login-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #c4b5fd;
+    -fx-background-radius: 4;
+}
+
+.login-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #a78bfa;
+}
+
+.login-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-padding: 32 40;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 20, 0, 0, 4);
+}
+
+.login-icon-bg {
+    -fx-background-color: #7c3aed;
+    -fx-background-radius: 12;
+    -fx-min-width: 56;
+    -fx-min-height: 56;
+    -fx-pref-width: 56;
+    -fx-pref-height: 56;
+}
+
+.login-icon-text {
+    -fx-font-size: 28px;
+}
+
+.login-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f2937;
+}
+
+.login-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7280;
+}
+
+.login-field-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #374151;
+}
+
+.login-input {
+    -fx-background-color: #f3f4f6;
+    -fx-background-radius: 8;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 8;
+    -fx-padding: 10 14;
+    -fx-font-size: 13px;
+    -fx-pref-height: 40;
+}
+
+.login-input:focused {
+    -fx-border-color: #7c3aed;
+    -fx-background-color: #ffffff;
+}
+
+.login-input-small {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 6;
+    -fx-padding: 6 10;
+    -fx-font-size: 12px;
+}
+
+.login-combo {
+    -fx-background-color: #f3f4f6;
+    -fx-background-radius: 8;
+    -fx-pref-height: 40;
+}
+
+.login-sep .line {
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 1 0 0 0;
+}
+
+.login-server-section {
+    -fx-padding: 8 0 0 0;
+}
+
+.login-link-prefix {
+    -fx-font-size: 13px;
+    -fx-text-fill: #374151;
+}
+
+.btn-link {
+    -fx-background-color: transparent;
+    -fx-text-fill: #7c3aed;
+    -fx-underline: true;
+    -fx-padding: 0 4;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-min-width: 0;
+    -fx-pref-height: 1.8em;
+}
+
+.btn-link:hover {
+    -fx-text-fill: #6d28d9;
+}
+
+.login-status {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6b7280;
+}
+
+.login-status-loading {
+    -fx-text-fill: #7c3aed;
+}
+
+.login-status-error {
+    -fx-text-fill: #dc2626;
+}
+
+.login-status-success {
+    -fx-text-fill: #059669;
+}
+
+/* Taille et alignement unifiés pour tous les boutons */
+.button {
+    -fx-min-width: 120px;
+    -fx-pref-height: 38px;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+}
+
+.btn-bar {
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 10;
+}
+
+.btn-login-primary {
+    -fx-background-color: #7c3aed;
+    -fx-text-fill: white;
+    -fx-padding: 12 24;
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-min-width: 120px;
+    -fx-pref-height: 38px;
+}
+
+.btn-login-primary:hover {
+    -fx-background-color: #6d28d9;
+}
+
+.btn-login-primary:pressed {
+    -fx-background-color: #5b21b6;
+}
+
+/* ========== MESSAGING - Header (barre droite) ========== */
+.header-pane {
+    -fx-background-color: #ffffff;
+    -fx-padding: 12 20;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 0 0 1 0;
+}
+
+.header-label {
+    -fx-text-fill: #374151;
+    -fx-font-size: 14px;
+}
+
+.status-online {
+    -fx-text-fill: #059669;
+    -fx-font-size: 12px;
+}
+
+.status-offline {
+    -fx-text-fill: #dc2626;
+    -fx-font-size: 12px;
+}
+
+.btn-logout {
+    -fx-background-color: #dc2626;
+    -fx-text-fill: white;
+    -fx-padding: 8 16;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-min-width: 120px;
+    -fx-pref-height: 38px;
+}
+
+.btn-retour {
+    -fx-background-color: #e5e7eb;
+    -fx-text-fill: #374151;
+    -fx-padding: 8 16;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-min-width: 120px;
+    -fx-pref-height: 38px;
+}
+
+.btn-retour:hover {
+    -fx-background-color: #d1d5db;
+}
+
+.btn-logout:hover {
+    -fx-background-color: #b91c1c;
+}
+
+/* ========== Sidebar - Messagerie Interne + Membres ========== */
+.sidebar {
+    -fx-background-color: #ffffff;
+    -fx-padding: 16;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 0 1 0 0;
+}
+
+.sidebar-app-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f2937;
+}
+
+.sidebar-app-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6b7280;
+}
+
+.sidebar-icon {
+    -fx-font-size: 24px;
+}
+
+.status-dot-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #059669;
+}
+
+.header-role-badge {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #1d4ed8;
+    -fx-font-size: 12px;
+    -fx-padding: 4 10;
+    -fx-background-radius: 10;
+}
+
+.placeholder-icon {
+    -fx-font-size: 48px;
+}
+
+.sidebar-section-title {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #374151;
+}
+
+.sidebar-badge-online {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #1d4ed8;
+    -fx-font-size: 11px;
+    -fx-padding: 2 8;
+    -fx-background-radius: 10;
+}
+
+.search-field {
+    -fx-background-color: #f3f4f6;
+    -fx-background-radius: 8;
+    -fx-padding: 8 12;
+    -fx-font-size: 13px;
+    -fx-pref-height: 36;
+}
+
+.sidebar-title {
+    -fx-font-size: 11px;
+    -fx-text-fill: #6b7280;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 8 0;
+}
+
+.list-contacts {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.list-contacts .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 10 12;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.list-contacts .list-cell:filled:hover {
+    -fx-background-color: #f3f4f6;
+}
+
+.list-contacts .list-cell:filled:selected {
+    -fx-background-color: #ede9fe;
+}
+
+.list-contacts .list-cell:filled:selected .label {
+    -fx-text-fill: #1f2937;
+}
+
+/* Badges rôle (Organisateur, Membre, Bénévole) */
+.badge-role-organisateur {
+    -fx-background-color: #ede9fe;
+    -fx-text-fill: #5b21b6;
+    -fx-font-size: 10px;
+    -fx-padding: 2 8;
+    -fx-background-radius: 10;
+}
+
+.badge-role-membre {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #1d4ed8;
+    -fx-font-size: 10px;
+    -fx-padding: 2 8;
+    -fx-background-radius: 10;
+}
+
+.badge-role-benevole {
+    -fx-background-color: #d1fae5;
+    -fx-text-fill: #047857;
+    -fx-font-size: 10px;
+    -fx-padding: 2 8;
+    -fx-background-radius: 10;
+}
+
+/* Conversation area */
+.conversation-pane {
+    -fx-background-color: #f9fafb;
+    -fx-padding: 16;
+}
+
+.placeholder-pane {
+    -fx-background-color: #f9fafb;
+    -fx-alignment: center;
+}
+
+.placeholder-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #374151;
+}
+
+.placeholder-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #9ca3af;
+}
+
+.area-messages {
+    -fx-control-inner-background: #ffffff;
+    -fx-font-size: 13px;
+    -fx-padding: 12;
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+}
+
+.input-area {
+    -fx-padding: 12 0 0 0;
+    -fx-spacing: 8;
+}
+
+.txt-message {
+    -fx-padding: 10 14;
+    -fx-font-size: 13px;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+.btn-send {
+    -fx-background-color: #7c3aed;
+    -fx-text-fill: white;
+    -fx-padding: 10 20;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-min-width: 120px;
+    -fx-pref-height: 38px;
+}
+
+.btn-send:hover {
+    -fx-background-color: #6d28d9;
+}
+
+.btn-send:disabled {
+    -fx-background-color: #d1d5db;
+}
+
+/* Buttons secondaires */
+.btn-secondary {
+    -fx-background-color: #e5e7eb;
+    -fx-text-fill: #374151;
+    -fx-padding: 8 16;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-min-width: 120px;
+    -fx-pref-height: 38px;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #d1d5db;
+}
+
+/* Admin section */
+.admin-section {
+    -fx-padding: 12 0 0 0;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* Admin panel - Gestion des membres */
+.admin-panel {
+    -fx-background-color: #f9fafb;
+}
+
+.admin-table {
+    -fx-background-color: white;
+}
+
+/* ========== Fenêtre Administration (même design que messagerie) ========== */
+.admin-window {
+    -fx-background-color: #f9fafb;
+}
+
+.admin-window .header-pane {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 0 0 1 0;
+}
+
+.sidebar-icon-admin {
+    -fx-font-size: 24px;
+}
+
+/* Badge Administrateur (violet comme Organisateur) */
+.admin-window .header-role-badge {
+    -fx-background-color: #ede9fe;
+    -fx-text-fill: #5b21b6;
+    -fx-font-size: 12px;
+    -fx-padding: 4 10;
+    -fx-background-radius: 10;
+}
+
+.admin-window .placeholder-pane {
+    -fx-background-color: #ffffff;
+}
+
+/* Élément de navigation sélectionné (bande grise à gauche) */
+.admin-nav-selected {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #d1d5db;
+    -fx-border-width: 0 0 0 3;
+    -fx-padding: 8 12;
+    -fx-background-radius: 0 6 6 0;
+}
+
+/* En-tête du tableau admin (barre grise comme la maquette) */
+.admin-table .column-header {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 0 1 1 0;
+    -fx-padding: 10 12;
+}
+
+.admin-table .column-header-background {
+    -fx-background-color: #f3f4f6;
+}
+
+/* Badge notification (non lus) */
+.badge {
+    -fx-background-color: #dc2626;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 2 6;
+    -fx-background-radius: 10;
+}
