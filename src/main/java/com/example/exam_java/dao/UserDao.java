@@ -17,6 +17,10 @@ public class UserDao {
 
     private final EntityManagerFactory emf = JpaUtil.getEntityManagerFactory();
 
+    /**
+     * Insère un nouvel utilisateur en base (RG1 : username unique géré par le contrôleur/serveur).
+     * Paramètre : user – entité User à persister. Ne renvoie rien. Lève une exception si contrainte violée.
+     */
     public void insert(User user) {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
@@ -25,6 +29,10 @@ public class UserDao {
         em.close();
     }
 
+    /**
+     * Recherche un utilisateur par son identifiant.
+     * Paramètre : id – identifiant. Retourne l'User ou null si non trouvé.
+     */
     public User findById(Long id) {
         EntityManager em = emf.createEntityManager();
         User user = em.find(User.class, id);
@@ -32,6 +40,10 @@ public class UserDao {
         return user;
     }
 
+    /**
+     * Recherche un utilisateur par son nom d'utilisateur.
+     * Paramètre : username – nom unique. Retourne l'User ou null si aucun résultat.
+     */
     public User findByUsername(String username) {
         EntityManager em = emf.createEntityManager();
         try {
@@ -45,10 +57,18 @@ public class UserDao {
         }
     }
 
+    /**
+     * Indique si un utilisateur existe avec ce nom.
+     * Paramètre : username – nom à tester. Retourne true si trouvé, false sinon.
+     */
     public boolean existsByUsername(String username) {
         return findByUsername(username) != null;
     }
 
+    /**
+     * Retourne tous les utilisateurs triés par username.
+     * Aucun paramètre. Retourne la liste (jamais null).
+     */
     public List<User> findAll() {
         EntityManager em = emf.createEntityManager();
         List<User> list = em.createQuery("SELECT u FROM User u ORDER BY u.username", User.class).getResultList();
@@ -57,7 +77,8 @@ public class UserDao {
     }
 
     /**
-     * RG13: Liste complète des membres (pour ORGANISATEUR)
+     * Liste complète des membres (pour ORGANISATEUR – RG13), triés par username.
+     * Aucun paramètre. Retourne la liste (jamais null).
      */
     public List<User> findAllMembers() {
         EntityManager em = emf.createEntityManager();
@@ -66,6 +87,10 @@ public class UserDao {
         return list;
     }
 
+    /**
+     * Liste les utilisateurs dont le statut est ONLINE.
+     * Aucun paramètre. Retourne la liste (jamais null).
+     */
     public List<User> findOnlineUsers() {
         EntityManager em = emf.createEntityManager();
         List<User> list = em.createQuery("SELECT u FROM User u WHERE u.status = :status", User.class)
@@ -75,6 +100,10 @@ public class UserDao {
         return list;
     }
 
+    /**
+     * Met à jour un utilisateur existant en base (merge).
+     * Paramètre : user – entité détachée à mettre à jour. Ne renvoie rien.
+     */
     public void update(User user) {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
@@ -83,6 +112,10 @@ public class UserDao {
         em.close();
     }
 
+    /**
+     * Met à jour le statut (ONLINE/OFFLINE) d'un utilisateur par son username.
+     * Paramètres : username – nom ; status – nouveau statut. Ne renvoie rien. Ne fait rien si l'utilisateur n'existe pas.
+     */
     public void updateStatus(String username, UserStatus status) {
         User user = findByUsername(username);
         if (user != null) {
@@ -91,6 +124,10 @@ public class UserDao {
         }
     }
 
+    /**
+     * Liste les utilisateurs en attente de validation (validated = false), triés par date de création.
+     * Aucun paramètre. Retourne la liste (jamais null).
+     */
     public List<User> findPendingUsers() {
         EntityManager em = emf.createEntityManager();
         List<User> list = em.createQuery("SELECT u FROM User u WHERE u.validated = false ORDER BY u.dateCreation", User.class).getResultList();
@@ -98,6 +135,10 @@ public class UserDao {
         return list;
     }
 
+    /**
+     * Marque un utilisateur comme validé (peut se connecter).
+     * Paramètre : username – nom de l'utilisateur. Ne renvoie rien. Ne fait rien si l'utilisateur n'existe pas.
+     */
     public void validateUser(String username) {
         User user = findByUsername(username);
         if (user != null) {
@@ -106,6 +147,10 @@ public class UserDao {
         }
     }
 
+    /**
+     * Bloque un utilisateur (ne peut plus se connecter).
+     * Paramètre : username – nom. Ne renvoie rien. Ne fait rien si l'utilisateur n'existe pas.
+     */
     public void blockUser(String username) {
         User user = findByUsername(username);
         if (user != null) {
@@ -114,6 +159,10 @@ public class UserDao {
         }
     }
 
+    /**
+     * Débloque un utilisateur.
+     * Paramètre : username – nom. Ne renvoie rien. Ne fait rien si l'utilisateur n'existe pas.
+     */
     public void unblockUser(String username) {
         User user = findByUsername(username);
         if (user != null) {
@@ -122,7 +171,10 @@ public class UserDao {
         }
     }
 
-    /** Supprime l'utilisateur par son username (pour admin). */
+    /**
+     * Supprime définitivement l'utilisateur par son username (pour admin). À appeler après suppression des messages associés.
+     * Paramètre : username – nom. Retourne true si supprimé, false si utilisateur inexistant ou erreur.
+     */
     public boolean deleteUserByUsername(String username) {
         EntityManager em = emf.createEntityManager();
         try {

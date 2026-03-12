@@ -24,6 +24,11 @@ public class LoginController {
     private ServerConnection connection;
     private Stage stage;
 
+    /**
+     * Ouvre l'écran d'inscription (register).
+     * Récupère l'hôte et le port saisis et les transmet au RegisterController.
+     * Ne prend aucun paramètre. En cas d'erreur de chargement FXML, affiche le message dans lbl_status.
+     */
     @FXML
     void onGoRegister() {
         try {
@@ -39,19 +44,37 @@ public class LoginController {
         }
     }
 
+    /**
+     * Enregistre la connexion serveur utilisée pour le login.
+     * Paramètre : connection – instance de ServerConnection. Ne renvoie rien.
+     */
     public void setConnection(ServerConnection connection) {
         this.connection = connection;
     }
 
+    /**
+     * Définit la fenêtre principale (pour navigation vers messagerie ou register).
+     * Paramètre : stage – la fenêtre JavaFX. Ne renvoie rien.
+     */
     public void setStage(Stage stage) {
         this.stage = stage;
     }
 
+    /**
+     * Applique une classe CSS au label de statut (loading, error, success).
+     * Paramètre : styleClass – nom de la classe, ou null pour tout retirer. Ne renvoie rien.
+     */
     private void setStatusStyle(String styleClass) {
         lbl_status.getStyleClass().removeAll("login-status-loading", "login-status-error", "login-status-success");
         if (styleClass != null) lbl_status.getStyleClass().add(styleClass);
     }
 
+    /**
+     * Tente la connexion au serveur avec les identifiants saisis.
+     * Lit host, port, username, password ; vérifie que username et password ne sont pas vides ;
+     * établit la connexion et envoie LOGIN au serveur. En cas d'échec de connexion TCP, affiche un message d'erreur.
+     * Aucun paramètre. Ne renvoie rien.
+     */
     @FXML
     void onLogin() {
         lbl_status.setText("");
@@ -94,6 +117,11 @@ public class LoginController {
         connection.send(Protocol.LOGIN, username, password);
     }
 
+    /**
+     * Traite la réponse du serveur après une tentative de login.
+     * Si LOGIN_SUCCESS : ouvre la vue messagerie avec le rôle reçu. Si LOGIN_FAIL : affiche le message d'erreur.
+     * Paramètres : line – ligne reçue du serveur ; expectedUsername – login envoyé. Ne renvoie rien.
+     */
     private void handleResponse(String line, String expectedUsername) {
         String[] parts = Protocol.parse(line);
         if (parts.length == 0) return;
@@ -108,6 +136,12 @@ public class LoginController {
         }
     }
 
+    /**
+     * Ouvre la fenêtre de messagerie après un login réussi.
+     * Charge messaging-view.fxml, initialise MessagingController avec la connexion, le nom et le rôle, affiche la scène.
+     * Paramètres : conn – connexion serveur ; username – nom de l'utilisateur ; role – rôle (ex. MEMBRE).
+     * Ne renvoie rien. En cas d'IOException affiche l'erreur dans lbl_status.
+     */
     private void openMessagingView(ServerConnection conn, String username, String role) {
         try {
             Stage s = stage != null ? stage : (Stage) txt_username.getScene().getWindow();
@@ -132,6 +166,10 @@ public class LoginController {
         }
     }
 
+    /**
+     * Convertit le texte du champ port en entier.
+     * Paramètre : text – chaîne saisie (ex. "9999"). Retourne le numéro de port, ou 9999 si le texte n'est pas un nombre valide.
+     */
     private int parsePort(String text) {
         try {
             return Integer.parseInt(text);

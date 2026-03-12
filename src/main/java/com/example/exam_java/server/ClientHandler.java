@@ -30,6 +30,10 @@ public class ClientHandler implements Runnable {
     private PrintWriter writer;
     private User currentUser;
 
+    /**
+     * Crée un gestionnaire pour un client connecté. Chaque client est traité dans un thread séparé (RG11).
+     * Paramètres : socket – socket du client ; userDao, messageDao – accès BDD ; onlineUsers – map des connectés ; server – pour log().
+     */
     public ClientHandler(Socket socket, UserDao userDao, MessageDao messageDao,
                          ConcurrentHashMap<String, ClientHandler> onlineUsers, MessagerieServer server) {
         this.socket = socket;
@@ -39,6 +43,10 @@ public class ClientHandler implements Runnable {
         this.server = server;
     }
 
+    /**
+     * Boucle principale : lit les lignes reçues, appelle handleCommand pour chaque ligne. En cas de déconnexion ou IOException, appelle disconnect().
+     * Aucun paramètre. Ne renvoie rien.
+     */
     @Override
     public void run() {
         try {
@@ -56,6 +64,10 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Dispatche la ligne reçue vers le bon handler (REGISTER, LOGIN, SEND, GET_HISTORY, etc.). Envoie ERROR si commande inconnue.
+     * Paramètre : line – ligne brute. Ne renvoie rien.
+     */
     private void handleCommand(String line) {
         if (line == null || (line = line.trim()).isEmpty()) return;
         String[] parts = Protocol.parse(line);
@@ -85,6 +97,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /** Inscription : vérifie username unique (RG1), rôle valide, crée l'utilisateur en BDD (non validé). Envoie REGISTER_SUCCESS ou REGISTER_FAIL. */
     private void handleRegister(String[] parts) {
         if (parts.length < 4) {
             send(Protocol.REGISTER_FAIL, "Paramètres manquants");
@@ -114,6 +127,7 @@ public class ClientHandler implements Runnable {
         send(Protocol.REGISTER_SUCCESS);
     }
 
+    /** Connexion : vérifie identifiants, compte actif (validé et non bloqué), unicité de connexion (RG3). Livre les messages en attente (RG6), notifie USER_ONLINE. */
     private void handleLogin(String[] parts) {
         if (parts.length < 3) {
             send(Protocol.LOGIN_FAIL, "Paramètres manquants");
@@ -171,6 +185,7 @@ public class ClientHandler implements Runnable {
         disconnect();
     }
 
+    /** Envoi de message : authentification (RG2), destinataire existant (RG5), contenu non vide et max 1000 car. (RG7). Enregistre en BDD, livre si en ligne sinon en attente (RG6). */
     private void handleSend(String[] parts) {
         if (currentUser == null) {
             send(Protocol.ERROR, "Non authentifié (RG2)");
@@ -395,6 +410,7 @@ public class ClientHandler implements Runnable {
         send(Protocol.VALIDATE_SUCCESS, username);
     }
 
+    /** Historique : renvoie la conversation entre l'utilisateur courant et l'utilisateur demandé (RG8), format sender:date:contenu séparés par ||. */
     private void handleGetHistory(String[] parts) {
         if (currentUser == null) {
             send(Protocol.ERROR, "Non authentifié (RG2)");
@@ -446,12 +462,17 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Envoie une ligne au client (format protocole : parties jointes par | + \n).
+     * Paramètres : parts – commande et paramètres. Ne fait rien si writer est null. Ne renvoie rien.
+     */
     public void send(String... parts) {
         if (writer != null) {
             writer.println(Protocol.build(parts).trim());
         }
     }
 
+    /** Déconnecte le client : met à jour le statut OFFLINE en BDD, retire de onlineUsers, notifie USER_OFFLINE, ferme la socket. */
     private void disconnect() {
         if (currentUser != null) {
             String username = currentUser.getUsername();
@@ -467,11 +488,18 @@ public class ClientHandler implements Runnable {
         } catch (IOException ignored) {}
     }
 
+    /**
+     * Retourne l'utilisateur actuellement connecté sur ce handler, ou null si non authentifié.
+     * Aucun paramètre. Retourne l'instance User ou null.
+     */
     public User getCurrentUser() {
         return currentUser;
     }
 
-    /** Déconnecte forcément ce client (ex: compte bloqué/supprimé par l'admin). */
+    /**
+     * Force la fermeture de la socket (sans mise à jour BDD). Utilisé quand l'admin bloque/supprime le compte.
+     * Aucun paramètre. Ne renvoie rien.
+     */
     public void forceDisconnect() {
         try {
             if (socket != null && !socket.isClosed()) socket.close();
