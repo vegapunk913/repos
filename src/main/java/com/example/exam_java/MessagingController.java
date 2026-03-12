@@ -194,6 +194,7 @@ public class MessagingController {
             conversationPane.setManaged(true);
             if (inputArea != null) inputArea.setVisible(true);
             fileMessagesInView.clear();
+            messageContainer.getChildren().clear();
 
             loadHistory(selectedUser);
         }
