@@ -13,6 +13,13 @@ import java.util.Map;
 public final class JpaUtil {
 
     private static EntityManagerFactory emf;
+    private static void ensureDriverLoaded() {
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("Pilote PostgreSQL introuvable. Vérifiez la dépendance postgresql dans pom.xml.", e);
+        }
+    }
 
     public static synchronized EntityManagerFactory getEntityManagerFactory() {
         if (emf == null) {

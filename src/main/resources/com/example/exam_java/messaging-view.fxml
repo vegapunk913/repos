@@ -64,7 +64,16 @@
                   <Region HBox.hgrow="ALWAYS" />
                   <Button mnemonicParsing="false" onAction="#onRefreshHistory" styleClass="btn-secondary" text="Actualiser" />
                </HBox>
-               <TextArea fx:id="area_messages" editable="false" prefHeight="350" styleClass="area-messages" wrapText="true" VBox.vgrow="ALWAYS" />
+               <ScrollPane fx:id="scrollPane"
+                       VBox.vgrow="ALWAYS"
+                           fitToWidth="true"
+                           hbarPolicy="NEVER"
+                           style="-fx-background-color: transparent;
+                           -fx-background: transparent;
+                           -fx-border-width: 0;">
+                  <VBox fx:id="messageContainer"
+                        style="-fx-background-color: transparent; -fx-padding: 12; -fx-spacing: 8;"/>
+               </ScrollPane>
                <HBox fx:id="inputArea" alignment="CENTER_LEFT" styleClass="btn-bar input-area" spacing="10">
                   <Button mnemonicParsing="false" onAction="#onSendFile" styleClass="btn-secondary" text="📎 Fichier" />
                   <TextField fx:id="txt_message" onAction="#onSendMessage" prefWidth="350" promptText="Écrivez votre message..." styleClass="txt-message" HBox.hgrow="ALWAYS" />

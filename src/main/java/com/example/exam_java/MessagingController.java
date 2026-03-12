@@ -33,6 +33,8 @@ import java.util.Map;
 
 public class MessagingController {
 
+    @FXML private ScrollPane scrollPane;
+    @FXML private VBox messageContainer;
     @FXML private Label lbl_user_role;
     @FXML private Label lbl_status_dot;
     @FXML private Label lbl_online_count;
@@ -42,7 +44,7 @@ public class MessagingController {
     @FXML private Label lbl_error;
     @FXML private ListView<ContactItem> list_contacts_online;
     @FXML private ListView<ContactItem> list_contacts_offline;
-    @FXML private TextArea area_messages;
+   // @FXML private TextArea area_messages;
     @FXML private TextField txt_message;
     @FXML private Button btn_list_members;
     @FXML private Button btn_administration;
@@ -351,7 +353,7 @@ public class MessagingController {
                         }
                     }
                 }
-                area_messages.setText(sb.toString());
+                appendMessage("Système", sb.toString(), "");
             }
             case Protocol.MESSAGE -> {
                 if (parts.length > 1) {
@@ -387,7 +389,7 @@ public class MessagingController {
                 if (parts.length >= 3) {
                     String historyForUser = parts[1];
                     if (selectedUser == null || !historyForUser.equals(selectedUser)) return;
-                    area_messages.clear();
+                    messageContainer.getChildren().clear();
                     String historyStr = parts[2];
                     if (!historyStr.isBlank()) {
                         String[] msgs = historyStr.split("\\|\\|");
@@ -421,10 +423,12 @@ public class MessagingController {
     }
 
     private void appendMessage(String sender, String content) {
-        appendMessage(sender, content, java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")));
+        String time = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
+        appendMessage(sender,content,time);
     }
 
     private void appendMessage(String sender, String content, String time) {
+        boolean isMine = sender.equals(username);
         String prefix = sender.equals(username) ? "Vous" : sender;
         String displayContent = content;
         if (content.startsWith("[FILE]")) {
@@ -440,7 +444,42 @@ public class MessagingController {
                 }
             }
         }
-        area_messages.appendText("[" + time + "] " + prefix + ": " + displayContent + "\n");
+        Label bubble = new Label(displayContent);
+        bubble.setWrapText(true);
+        bubble.setMaxWidth(400);
+        bubble.setStyle(isMine
+                ? "-fx-background-color: #7c3aed; -fx-background-radius: 16 4 16 16;" +
+                "-fx-text-fill: white; -fx-font-size: 13px; -fx-padding: 10 14 10 14;"
+                : "-fx-background-color: #1e2535; -fx-background-radius: 4 16 16 16;" +
+                "-fx-text-fill: #e0e4f0; -fx-font-size: 13px; -fx-padding: 10 14 10 14;"
+        );
+        Label timeLabel = new Label(time);
+        timeLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #9ca3af;");
+        VBox bubbleBox = new VBox(3);
+        if (!isMine) {
+            Label senderLabel = new Label(sender);
+            senderLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #7c3aed; -fx-font-weight: bold;");
+            bubbleBox.getChildren().add(senderLabel);
+        }
+        bubbleBox.getChildren().addAll(bubble, timeLabel);
+        bubbleBox.setMaxWidth(420);
+        bubbleBox.setAlignment(isMine
+                ? javafx.geometry.Pos.CENTER_RIGHT
+                : javafx.geometry.Pos.CENTER_LEFT
+        );
+
+        HBox row = new HBox();
+        row.setAlignment(isMine
+                ? javafx.geometry.Pos.CENTER_RIGHT
+                : javafx.geometry.Pos.CENTER_LEFT
+        );
+        row.getChildren().add(bubbleBox);
+
+        messageContainer.getChildren().add(row);
+        scrollPane.layout();
+        scrollPane.setVvalue(1.0);
+
+      //  area_messages.appendText("[" + time + "] " + prefix + ": " + displayContent + "\n");
     }
 
     @FXML

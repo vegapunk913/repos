@@ -8,6 +8,7 @@ import javafx.beans.property.StringProperty;
 /**
  * Représente un contact dans la liste (avec statut, rôle et notifications)
  */
+
 public class ContactItem {
 
     private final StringProperty username = new SimpleStringProperty();
