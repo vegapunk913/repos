@@ -15,6 +15,10 @@ public class MessageDao {
 
     private final EntityManagerFactory emf = JpaUtil.getEntityManagerFactory();
 
+    /**
+     * Insère un message en base et fixe son statut à ENVOYE.
+     * Paramètre : message – entité Message (sender, receiver, contenu). Ne renvoie rien.
+     */
     public void insert(Message message) {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
@@ -24,6 +28,10 @@ public class MessageDao {
         em.close();
     }
 
+    /**
+     * Recherche un message par son identifiant.
+     * Paramètre : id – identifiant. Retourne le Message ou null si non trouvé.
+     */
     public Message findById(Long id) {
         EntityManager em = emf.createEntityManager();
         Message msg = em.find(Message.class, id);
@@ -65,6 +73,10 @@ public class MessageDao {
         return list;
     }
 
+    /**
+     * Met à jour un message existant en base (merge).
+     * Paramètre : message – entité à mettre à jour. Ne renvoie rien.
+     */
     public void update(Message message) {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
@@ -73,17 +85,28 @@ public class MessageDao {
         em.close();
     }
 
+    /**
+     * Passe le statut du message à RECU (livré au destinataire).
+     * Paramètre : message – message à mettre à jour. Ne renvoie rien.
+     */
     public void markAsReceived(Message message) {
         message.setStatut(MessageStatut.RECU);
         update(message);
     }
 
+    /**
+     * Passe le statut du message à LU.
+     * Paramètre : message – message à mettre à jour. Ne renvoie rien.
+     */
     public void markAsRead(Message message) {
         message.setStatut(MessageStatut.LU);
         update(message);
     }
 
-    /** Supprime tous les messages où l'utilisateur (par username) est expéditeur ou destinataire (avant suppression du compte). */
+    /**
+     * Supprime tous les messages dont l'utilisateur est expéditeur ou destinataire (avant suppression du compte par l'admin).
+     * Paramètre : username – nom de l'utilisateur. Ne renvoie rien.
+     */
     public void deleteByUsername(String username) {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();

@@ -6,7 +6,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /**
- * Représente un contact dans la liste (avec statut, rôle et notifications)
+ * Représente un contact dans la liste (avec statut, rôle et notifications de messages non lus).
  */
 public class ContactItem {
 
@@ -15,10 +15,15 @@ public class ContactItem {
     private final StringProperty role = new SimpleStringProperty();   // ORGANISATEUR, MEMBRE, BENEVOLE
     private final IntegerProperty unreadCount = new SimpleIntegerProperty(0);
 
+    /** Crée un contact avec username et statut ; rôle par défaut MEMBRE. */
     public ContactItem(String username, String status) {
         this(username, status, null);
     }
 
+    /**
+     * Crée un contact avec username, statut (ONLINE/OFFLINE) et rôle (null = MEMBRE).
+     * Paramètres : username – nom ; status – ONLINE ou OFFLINE ; role – ORGANISATEUR, BENEVOLE ou MEMBRE.
+     */
     public ContactItem(String username, String status, String role) {
         this.username.set(username);
         this.status.set(status);

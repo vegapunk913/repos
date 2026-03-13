@@ -33,6 +33,8 @@ import java.util.Map;
 
 public class MessagingController {
 
+    @FXML private ScrollPane scrollPane;
+    @FXML private VBox messageContainer;
     @FXML private Label lbl_user_role;
     @FXML private Label lbl_status_dot;
     @FXML private Label lbl_online_count;
@@ -42,7 +44,7 @@ public class MessagingController {
     @FXML private Label lbl_error;
     @FXML private ListView<ContactItem> list_contacts_online;
     @FXML private ListView<ContactItem> list_contacts_offline;
-    @FXML private TextArea area_messages;
+   // @FXML private TextArea area_messages;
     @FXML private TextField txt_message;
     @FXML private Button btn_list_members;
     @FXML private Button btn_administration;
@@ -61,6 +63,12 @@ public class MessagingController {
     private final Map<Long, String> fileMessagesInView = new HashMap<>();
     private javafx.stage.Stage stage;
 
+    /**
+     * Initialise le contrôleur de messagerie après un login réussi.
+     * Configure les listes de contacts, le listener des messages serveur, et demande la liste des contacts.
+     * Paramètres : conn – connexion au serveur ; username – nom de l'utilisateur connecté ; role – rôle (MEMBRE, BENEVOLE, ORGANISATEUR).
+     * Ne renvoie rien.
+     */
     public void init(ServerConnection conn, String username, Role role) {
         this.connection = conn;
         this.username = username;
@@ -98,10 +106,18 @@ public class MessagingController {
         refreshContacts();
     }
 
+    /**
+     * Définit la fenêtre principale (pour dialogues et notifications).
+     * Paramètre : s – la fenêtre JavaFX. Ne renvoie rien.
+     */
     public void setStage(javafx.stage.Stage s) {
         this.stage = s;
     }
 
+    /**
+     * Retourne le libellé affiché pour un rôle (Organisateur, Bénévole, Membre).
+     * Paramètre : r – le rôle. Retourne une chaîne en français ; "Membre" si r est null.
+     */
     private static String roleLabel(Role r) {
         return r == null ? "Membre" : switch (r) {
             case ORGANISATEUR -> "Organisateur";
@@ -110,6 +126,11 @@ public class MessagingController {
         };
     }
 
+    /**
+     * Crée la fabrique de cellules pour les ListView de contacts (en ligne / hors ligne).
+     * Affiche avatar, nom, rôle, indicateur en ligne/hors ligne et badge de messages non lus.
+     * Aucun paramètre. Retourne un Callback pour la création des cellules.
+     */
     private Callback<ListView<ContactItem>, ListCell<ContactItem>> createContactCellFactory() {
         return lv -> new ListCell<>() {
             private final HBox box = new HBox(10);
@@ -174,6 +195,11 @@ public class MessagingController {
         };
     }
 
+    /**
+     * Appelé quand l'utilisateur sélectionne un contact (en ligne ou hors ligne).
+     * Affiche la conversation avec ce contact : vide la zone des messages, met à jour le titre, charge l'historique (GET_HISTORY).
+     * Paramètre : event – événement souris (source = list_contacts_online ou list_contacts_offline). Ne renvoie rien.
+     */
     @FXML
     void onContactSelected(MouseEvent event) {
         Object src = event.getSource();
@@ -192,11 +218,18 @@ public class MessagingController {
             conversationPane.setManaged(true);
             if (inputArea != null) inputArea.setVisible(true);
             fileMessagesInView.clear();
+            messageContainer.getChildren().clear();
 
             loadHistory(selectedUser);
         }
     }
 
+    /**
+     * Envoie le message saisi à l'utilisateur sélectionné (protocole SEND).
+     * Vérifie qu'un destinataire est sélectionné, que le message n'est pas vide et fait au plus 1000 caractères (RG7).
+     * Ajoute le message dans la vue immédiatement puis vide le champ. En cas d'erreur affiche un message dans lbl_error.
+     * Aucun paramètre. Ne renvoie rien.
+     */
     @FXML
     void onSendMessage() {
         lbl_error.setText("");
@@ -216,11 +249,21 @@ public class MessagingController {
         txt_message.clear();
     }
 
+    /**
+     * Actualise l'historique de la conversation courante (bouton Actualiser).
+     * Envoie GET_HISTORY pour l'utilisateur sélectionné. Ne fait rien si aucun contact sélectionné.
+     * Aucun paramètre. Ne renvoie rien.
+     */
     @FXML
     void onRefreshHistory() {
         if (selectedUser != null) loadHistory(selectedUser);
     }
 
+    /**
+     * Retourne à l'écran sans conversation sélectionnée (bouton Retour).
+     * Réaffiche le placeholder et masque la zone de conversation et le champ de saisie.
+     * Aucun paramètre. Ne renvoie rien.
+     */
     @FXML
     void onRetourConversation() {
         selectedUser = null;
@@ -231,6 +274,11 @@ public class MessagingController {
         conversationPane.setManaged(false);
     }
 
+    /**
+     * Déconnecte l'utilisateur (LOGOUT) et revient à l'écran de connexion.
+     * Ferme la connexion côté client puis charge login-view.fxml.
+     * Aucun paramètre. Ne renvoie rien.
+     */
     @FXML
     void onLogout() {
         if (connection != null) {
@@ -240,6 +288,10 @@ public class MessagingController {
         retourAuLogin();
     }
 
+    /**
+     * Charge l'écran de login et l'affiche dans la même fenêtre.
+     * Utilisé après déconnexion. Aucun paramètre. En cas d'IOException appelle Platform.exit().
+     */
     private void retourAuLogin() {
         try {
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("login-view.fxml"));
@@ -257,16 +309,30 @@ public class MessagingController {
         }
     }
 
+    /**
+     * Rafraîchit la liste des contacts (envoie LIST_ALL_CONTACTS au serveur).
+     * Aucun paramètre. Ne renvoie rien.
+     */
     @FXML
     void onRefreshContacts() {
         refreshContacts();
     }
 
+    /**
+     * Demande la liste des membres (bouton réservé aux organisateurs – RG13).
+     * Envoie LIST_MEMBERS. La réponse MEMBERS sera affichée dans la zone de conversation.
+     * Aucun paramètre. Ne renvoie rien.
+     */
     @FXML
     void onListMembers() {
         connection.send(Protocol.LIST_MEMBERS);
     }
 
+    /**
+     * Ouvre l'écran d'administration (réservé à l'utilisateur "admin").
+     * Charge admin-view.fxml et enregistre un callback pour revenir à la messagerie à la fermeture.
+     * Aucun paramètre. En cas d'erreur affiche un message dans lbl_error.
+     */
     @FXML
     void onOpenAdministration() {
         try {
@@ -284,16 +350,30 @@ public class MessagingController {
         }
     }
 
+    /**
+     * Envoie une requête LIST_ALL_CONTACTS au serveur pour mettre à jour les listes en ligne / hors ligne.
+     * Ne fait rien si la connexion est nulle ou déconnectée. Aucun paramètre. Ne renvoie rien.
+     */
     void refreshContacts() {
         if (connection != null && connection.isConnected()) {
             connection.send(Protocol.LIST_ALL_CONTACTS);
         }
     }
 
+    /**
+     * Demande l'historique de la conversation avec un utilisateur donné (GET_HISTORY).
+     * La réponse HISTORY sera traitée dans handleServerMessage.
+     * Paramètre : otherUser – nom de l'autre utilisateur. Ne renvoie rien.
+     */
     private void loadHistory(String otherUser) {
         connection.send(Protocol.GET_HISTORY, otherUser);
     }
 
+    /**
+     * Traite une ligne reçue du serveur (réponses protocole).
+     * Gère CONTACTS, LIST_ONLINE, MEMBERS, MESSAGE, FILE_DATA, HISTORY, USER_ONLINE/OFFLINE, ERROR.
+     * Paramètre : line – ligne brute reçue. Ne renvoie rien.
+     */
     private void handleServerMessage(String line) {
         String[] parts = Protocol.parse(line);
         if (parts.length == 0) return;
@@ -351,15 +431,15 @@ public class MessagingController {
                         }
                     }
                 }
-                area_messages.setText(sb.toString());
+                appendMessage("Système", sb.toString(), "");
             }
             case Protocol.MESSAGE -> {
                 if (parts.length > 1) {
-                    String[] m = parts[1].split(":", 3);
-                    if (m.length >= 3) {
+                    String[] m = parts[1].split(":", 4);
+                    if (m.length >= 4) {
                         String sender = m[0];
-                        String time = m[1];
-                        String content = m[2];
+                        String time = m[1] +":"+m[2];
+                        String content = m[3];
 
                         if (selectedUser != null && selectedUser.equals(sender)) {
                             appendMessage(sender, content, time);
@@ -387,15 +467,16 @@ public class MessagingController {
                 if (parts.length >= 3) {
                     String historyForUser = parts[1];
                     if (selectedUser == null || !historyForUser.equals(selectedUser)) return;
-                    area_messages.clear();
+                    messageContainer.getChildren().clear();
                     String historyStr = parts[2];
                     if (!historyStr.isBlank()) {
                         String[] msgs = historyStr.split("\\|\\|");
                         for (String msg : msgs) {
-                            String[] m = msg.split(":", 3);
-                            if (m.length >= 3) {
-                                String content = m[2].replace("::", ":").replace("|||", "||");
-                                appendMessage(m[0], content, m[1]);
+                            String[] m = msg.split(":", 4);
+                            if (m.length >= 4) {
+                                String time = m[1] + ":" + m[2];
+                                String content = m[3].replace("::", ":").replace("|||", "||");
+                                appendMessage(m[0], content, time);
                             }
                         }
                     }
@@ -411,6 +492,11 @@ public class MessagingController {
         }
     }
 
+    /**
+     * Affiche une notification type popup (nouveau message) et met la fenêtre au premier plan.
+     * Paramètres : title – titre (ex. "Nouveau message de user1") ; preview – aperçu du message (tronqué à 50 caractères).
+     * Ne renvoie rien.
+     */
     private void showNotification(String title, String preview) {
         if (stage != null) {
             stage.setTitle("● " + title + " - Messagerie");
@@ -420,11 +506,22 @@ public class MessagingController {
         }
     }
 
+    /**
+     * Ajoute une bulle de message dans la zone de conversation avec l'heure courante.
+     * Paramètres : sender – expéditeur ; content – contenu. Délègue à appendMessage(sender, content, time). Ne renvoie rien.
+     */
     private void appendMessage(String sender, String content) {
-        appendMessage(sender, content, java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")));
+        String time = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
+        appendMessage(sender,content,time);
     }
 
+    /**
+     * Ajoute une bulle de message dans messageContainer (alignement gauche/droite selon expéditeur).
+     * Gère l'affichage des fichiers [FILE] avec ID et nom. Fait défiler la zone vers le bas.
+     * Paramètres : sender – expéditeur ; content – contenu ; time – heure à afficher. Ne renvoie rien.
+     */
     private void appendMessage(String sender, String content, String time) {
+        boolean isMine = sender.equals(username);
         String prefix = sender.equals(username) ? "Vous" : sender;
         String displayContent = content;
         if (content.startsWith("[FILE]")) {
@@ -440,9 +537,49 @@ public class MessagingController {
                 }
             }
         }
-        area_messages.appendText("[" + time + "] " + prefix + ": " + displayContent + "\n");
+        Label bubble = new Label(displayContent);
+        bubble.setWrapText(true);
+        bubble.setMaxWidth(400);
+        bubble.setStyle(isMine
+                ? "-fx-background-color: #7c3aed; -fx-background-radius: 16 4 16 16;" +
+                "-fx-text-fill: white; -fx-font-size: 13px; -fx-padding: 10 14 10 14;"
+                : "-fx-background-color: #1e2535; -fx-background-radius: 4 16 16 16;" +
+                "-fx-text-fill: #e0e4f0; -fx-font-size: 13px; -fx-padding: 10 14 10 14;"
+        );
+        Label timeLabel = new Label(time);
+        timeLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #9ca3af;");
+        VBox bubbleBox = new VBox(3);
+        if (!isMine) {
+            Label senderLabel = new Label(sender);
+            senderLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #7c3aed; -fx-font-weight: bold;");
+            bubbleBox.getChildren().add(senderLabel);
+        }
+        bubbleBox.getChildren().addAll(bubble, timeLabel);
+        bubbleBox.setMaxWidth(420);
+        bubbleBox.setAlignment(isMine
+                ? javafx.geometry.Pos.CENTER_RIGHT
+                : javafx.geometry.Pos.CENTER_LEFT
+        );
+
+        HBox row = new HBox();
+        row.setAlignment(isMine
+                ? javafx.geometry.Pos.CENTER_RIGHT
+                : javafx.geometry.Pos.CENTER_LEFT
+        );
+        row.getChildren().add(bubbleBox);
+
+        messageContainer.getChildren().add(row);
+        scrollPane.layout();
+        scrollPane.setVvalue(1.0);
+
+      //  area_messages.appendText("[" + time + "] " + prefix + ": " + displayContent + "\n");
     }
 
+    /**
+     * Ouvre un sélecteur de fichier et envoie le fichier choisi au destinataire sélectionné (SEND_FILE).
+     * Limite 5 Mo. En cas d'erreur affiche un message dans lbl_error.
+     * Aucun paramètre. Ne renvoie rien.
+     */
     @FXML
     void onSendFile() {
         if (selectedUser == null) {
@@ -469,6 +606,11 @@ public class MessagingController {
         }
     }
 
+    /**
+     * Permet de télécharger un fichier affiché dans la conversation (REQUEST_FILE).
+     * Si plusieurs fichiers sont présents, affiche une boîte de choix. Sinon envoie directement la requête.
+     * Aucun paramètre. Ne renvoie rien. Affiche une erreur si aucun fichier dans la conversation.
+     */
     @FXML
     void onDownloadFile() {
         if (fileMessagesInView.isEmpty()) {
@@ -496,6 +638,10 @@ public class MessagingController {
         connection.send(Protocol.REQUEST_FILE, String.valueOf(msgId));
     }
 
+    /**
+     * Décode le contenu base64, propose d'enregistrer le fichier via FileChooser et ouvre le dossier parent si possible.
+     * Paramètres : fileName – nom suggéré ; base64 – contenu encodé. Ne renvoie rien. En cas d'erreur affiche un message.
+     */
     private void saveAndOpenFile(String fileName, String base64) {
         try {
             byte[] bytes = Base64.getDecoder().decode(base64);
@@ -516,6 +662,10 @@ public class MessagingController {
         }
     }
 
+    /**
+     * Affiche un message d'erreur dans le label prévu (style rouge).
+     * Paramètre : msg – texte à afficher. Ne renvoie rien.
+     */
     private void showError(String msg) {
         lbl_error.setText(msg);
         lbl_error.setStyle("-fx-text-fill: #e74c3c;");

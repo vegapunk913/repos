@@ -10,6 +10,10 @@ import java.io.IOException;
 
 public class MessagerieApplication extends Application {
 
+    /**
+     * Point d'entrée JavaFX : charge l'écran de login (login-view.fxml), affiche la fenêtre et transmet le stage au LoginController.
+     * Paramètre : stage – fenêtre principale. Peut lever IOException si le FXML est introuvable.
+     */
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader(MessagerieApplication.class.getResource("login-view.fxml"));
@@ -25,6 +29,9 @@ public class MessagerieApplication extends Application {
         stage.show();
     }
 
+    /**
+     * Lance l'application JavaFX. Paramètre : args – arguments de la ligne de commande (non utilisés). Ne renvoie rien.
+     */
     public static void main(String[] args) {
         launch(args);
     }

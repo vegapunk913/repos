@@ -17,6 +17,10 @@ import javafx.util.Duration;
  */
 public final class NotificationUtil {
 
+    /**
+     * Affiche une notification type popup (style Slack) pendant quelques secondes, positionnée par rapport à la fenêtre owner.
+     * Paramètres : owner – fenêtre parente (pour position) ; title – titre ; message – corps du message. Ne renvoie rien.
+     */
     public static void show(javafx.stage.Window owner, String title, String message) {
         Label lbl = new Label(title + "\n" + message);
         lbl.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-padding: 12 20; -fx-font-size: 12px;");
