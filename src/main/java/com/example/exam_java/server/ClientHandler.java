@@ -222,13 +222,12 @@ public class ClientHandler implements Runnable {
 
         ClientHandler receiverHandler = onlineUsers.get(receiverName);
         if (receiverHandler != null) {
-            // Destinataire en ligne: livraison immédiate
             receiverHandler.sendMessage(message);
             messageDao.markAsReceived(message);
+            send(Protocol.OK, "RECU", String.valueOf(message.getId()));
+        } else {
+            send(Protocol.OK, "ENVOYE", String.valueOf(message.getId()));
         }
-        // Sinon: RG6 - message enregistré, livré à la prochaine connexion
-
-        send(Protocol.OK, "Message envoyé");
     }
 
     private void handleSendFile(String[] parts) {
@@ -428,7 +427,7 @@ public class ClientHandler implements Runnable {
         }
 
         List<Message> history = messageDao.findConversation(currentUser, other);
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
         StringBuilder sb = new StringBuilder();
         for (Message m : history) {
             if (sb.length() > 0) sb.append("||");
@@ -441,7 +440,7 @@ public class ClientHandler implements Runnable {
     }
 
     private void sendMessage(Message m) {
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
         String payload = m.getSender().getUsername() + ":" + m.getDateEnvoi().format(fmt) + ":" + m.getContenu();
         send(Protocol.MESSAGE, payload);
     }
