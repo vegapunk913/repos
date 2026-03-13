@@ -435,11 +435,11 @@ public class MessagingController {
             }
             case Protocol.MESSAGE -> {
                 if (parts.length > 1) {
-                    String[] m = parts[1].split(":", 3);
-                    if (m.length >= 3) {
+                    String[] m = parts[1].split(":", 4);
+                    if (m.length >= 4) {
                         String sender = m[0];
-                        String time = m[1];
-                        String content = m[2];
+                        String time = m[1] +":"+m[2];
+                        String content = m[3];
 
                         if (selectedUser != null && selectedUser.equals(sender)) {
                             appendMessage(sender, content, time);
@@ -472,10 +472,11 @@ public class MessagingController {
                     if (!historyStr.isBlank()) {
                         String[] msgs = historyStr.split("\\|\\|");
                         for (String msg : msgs) {
-                            String[] m = msg.split(":", 3);
-                            if (m.length >= 3) {
-                                String content = m[2].replace("::", ":").replace("|||", "||");
-                                appendMessage(m[0], content, m[1]);
+                            String[] m = msg.split(":", 4);
+                            if (m.length >= 4) {
+                                String time = m[1] + ":" + m[2];
+                                String content = m[3].replace("::", ":").replace("|||", "||");
+                                appendMessage(m[0], content, time);
                             }
                         }
                     }
