@@ -269,7 +269,7 @@ public class ClientHandler implements Runnable {
 
     private void sendFileMessage(Message m) {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        String payload = m.getSender().getUsername() + "§" + m.getDateEnvoi().format(fmt) +"§"+ "[FILE]" + m.getId() + "|" + m.getFileName();
+        String payload = m.getSender().getUsername() + ":" + m.getDateEnvoi().format(fmt) +":"+ "[FILE]" + m.getId() + "|" + m.getFileName();
         send(Protocol.MESSAGE, payload);
     }
 
