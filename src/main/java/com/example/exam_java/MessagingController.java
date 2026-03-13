@@ -31,6 +31,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Contrôleur de l'écran de messagerie : liste des contacts, conversation, envoi de messages et de fichiers,
+ * historique, déconnexion et accès à l'administration (admin) ou à la liste des membres (organisateur).
+ */
 public class MessagingController {
 
     @FXML private ScrollPane scrollPane;
@@ -44,7 +48,6 @@ public class MessagingController {
     @FXML private Label lbl_error;
     @FXML private ListView<ContactItem> list_contacts_online;
     @FXML private ListView<ContactItem> list_contacts_offline;
-   // @FXML private TextArea area_messages;
     @FXML private TextField txt_message;
     @FXML private Button btn_list_members;
     @FXML private Button btn_administration;
@@ -56,7 +59,7 @@ public class MessagingController {
     private String username;
     private Role role;
     private String selectedUser;
-
+    private Label lastCheckLabel = null;
     private final ObservableList<ContactItem> contactsOnline = FXCollections.observableArrayList();
     private final ObservableList<ContactItem> contactsOffline = FXCollections.observableArrayList();
     private final Map<String, ContactItem> contactMap = new HashMap<>();
@@ -65,7 +68,7 @@ public class MessagingController {
 
     /**
      * Initialise le contrôleur de messagerie après un login réussi.
-     * Configure les listes de contacts, le listener des messages serveur, et demande la liste des contacts.
+     * Configure les listes de contacts, le listener des messages serveur, affiche les boutons selon le rôle (organisateur, admin) et demande la liste des contacts.
      * Paramètres : conn – connexion au serveur ; username – nom de l'utilisateur connecté ; role – rôle (MEMBRE, BENEVOLE, ORGANISATEUR).
      * Ne renvoie rien.
      */
@@ -107,7 +110,7 @@ public class MessagingController {
     }
 
     /**
-     * Définit la fenêtre principale (pour dialogues et notifications).
+     * Définit la fenêtre principale (pour dialogues, notifications et sélecteur de fichiers).
      * Paramètre : s – la fenêtre JavaFX. Ne renvoie rien.
      */
     public void setStage(javafx.stage.Stage s) {
@@ -128,7 +131,7 @@ public class MessagingController {
 
     /**
      * Crée la fabrique de cellules pour les ListView de contacts (en ligne / hors ligne).
-     * Affiche avatar, nom, rôle, indicateur en ligne/hors ligne et badge de messages non lus.
+     * Affiche avatar, initiale, nom, badge de rôle, indicateur en ligne/hors ligne et badge de messages non lus.
      * Aucun paramètre. Retourne un Callback pour la création des cellules.
      */
     private Callback<ListView<ContactItem>, ListCell<ContactItem>> createContactCellFactory() {
@@ -371,7 +374,7 @@ public class MessagingController {
 
     /**
      * Traite une ligne reçue du serveur (réponses protocole).
-     * Gère CONTACTS, LIST_ONLINE, MEMBERS, MESSAGE, FILE_DATA, HISTORY, USER_ONLINE/OFFLINE, ERROR.
+     * Gère CONTACTS, LIST_ONLINE, MEMBERS, MESSAGE, FILE_DATA, HISTORY, USER_ONLINE/OFFLINE, ERROR, OK.
      * Paramètre : line – ligne brute reçue. Ne renvoie rien.
      */
     private void handleServerMessage(String line) {
@@ -379,6 +382,8 @@ public class MessagingController {
         if (parts.length == 0) return;
 
         switch (parts[0]) {
+            // Liste de tous les contacts avec statut (en ligne / hors ligne) et rôle.
+            // Met à jour les deux ListView et les labels de section.
             case Protocol.CONTACTS -> {
                 contactsOnline.clear();
                 contactsOffline.clear();
@@ -410,9 +415,11 @@ public class MessagingController {
                 list_contacts_online.refresh();
                 list_contacts_offline.refresh();
             }
+            // Demande de rafraîchir la liste en ligne : on redemande la liste complète des contacts.
             case Protocol.LIST_ONLINE -> {
                 refreshContacts();
             }
+            // Réponse à LIST_MEMBERS (organisateur) : affiche la liste des membres dans la zone de conversation.
             case Protocol.MEMBERS -> {
                 selectedUser = null;
                 fileMessagesInView.clear();
@@ -431,18 +438,19 @@ public class MessagingController {
                         }
                     }
                 }
-                appendMessage("Système", sb.toString(), "");
+                appendMessage("Système", sb.toString(), "", "ENVOYE");
             }
+            // Nouveau message reçu : si conversation ouverte avec l'expéditeur, on l'affiche ; sinon notification + badge non lu.
             case Protocol.MESSAGE -> {
                 if (parts.length > 1) {
-                    String[] m = parts[1].split(":", 4);
+                    String[] m = parts[1].split(":", 5);
                     if (m.length >= 4) {
-                        String sender = m[0];
-                        String time = m[1] +":"+m[2];
+                        String sender  = m[0];
+                        String time    = m[1] + ":" + m[2];
                         String content = m[3];
-
+                        String statut  = m.length >= 5 ? m[4] : "ENVOYE";
                         if (selectedUser != null && selectedUser.equals(sender)) {
-                            appendMessage(sender, content, time);
+                            appendMessage(sender, content, time, statut);
                         } else {
                             ContactItem ci = contactMap.get(sender);
                             if (ci != null) {
@@ -456,6 +464,7 @@ public class MessagingController {
                     }
                 }
             }
+            // Données d'un fichier demandé (REQUEST_FILE) : nom + base64 ; propose l'enregistrement et ouvre le dossier.
             case Protocol.FILE_DATA -> {
                 if (parts.length >= 4) {
                     String fileName = parts[2];
@@ -463,31 +472,44 @@ public class MessagingController {
                     saveAndOpenFile(fileName, base64);
                 }
             }
+            // Historique de la conversation (réponse à GET_HISTORY) : vide la zone puis affiche les messages un par un.
             case Protocol.HISTORY -> {
-                if (parts.length >= 3) {
-                    String historyForUser = parts[1];
-                    if (selectedUser == null || !historyForUser.equals(selectedUser)) return;
-                    messageContainer.getChildren().clear();
-                    String historyStr = parts[2];
-                    if (!historyStr.isBlank()) {
-                        String[] msgs = historyStr.split("\\|\\|");
-                        for (String msg : msgs) {
-                            String[] m = msg.split(":", 4);
-                            if (m.length >= 4) {
-                                String time = m[1] + ":" + m[2];
-                                String content = m[3].replace("::", ":").replace("|||", "||");
-                                appendMessage(m[0], content, time);
-                            }
+                int first = line.indexOf('|');
+                int second = line.indexOf('|', first + 1);
+                String historyForUser = line.substring(first + 1, second);
+                String historyStr = line.substring(second + 1);
+                if (selectedUser == null || !historyForUser.equals(selectedUser)) return;
+                messageContainer.getChildren().clear();
+                if (!historyStr.isBlank()) {
+                    String[] msgs = historyStr.split("\\|\\|");
+                    for (String msg : msgs) {
+                        if (msg.isBlank()) continue;
+                        String[] m = msg.split(":", 4);
+                        if (m.length >= 4) {
+                            String time    = m[1] + ":" + m[2];
+                            String content = m[3].replace("::", ":").replace("|||", "||");
+                            String statut  = "ENVOYE";
+                            appendMessage(m[0], content, time, statut);
                         }
                     }
                 }
             }
+            // Un utilisateur s'est connecté ou déconnecté : on rafraîchit la liste des contacts pour mettre à jour le statut.
             case Protocol.USER_ONLINE, Protocol.USER_OFFLINE -> {
                 refreshContacts();
             }
+            // Erreur renvoyée par le serveur : affichage du message dans le label d'erreur.
             case Protocol.ERROR -> {
                 if (parts.length > 1) showError(parts[1]);
             }
+            // Accusé de réception (OK|RECU) : met à jour l'indicateur ✓✓ sur le dernier message envoyé.
+            case Protocol.OK -> {
+                if (parts.length >= 2 && "RECU".equals(parts[1]) && lastCheckLabel != null) {
+                    lastCheckLabel.setText("✓✓");
+                    lastCheckLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #9ca3af;");
+                }
+            }
+            // Commande inconnue ou sans traitement côté client : on ignore.
             default -> {}
         }
     }
@@ -507,22 +529,29 @@ public class MessagingController {
     }
 
     /**
-     * Ajoute une bulle de message dans la zone de conversation avec l'heure courante.
-     * Paramètres : sender – expéditeur ; content – contenu. Délègue à appendMessage(sender, content, time). Ne renvoie rien.
+     * Ajoute une bulle de message dans la zone de conversation avec l'heure courante (pour un envoi local).
+     * Paramètres : sender – expéditeur ; content – contenu. Délègue à appendMessage(sender, content, time, "ENVOYE"). Ne renvoie rien.
      */
     private void appendMessage(String sender, String content) {
         String time = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
-        appendMessage(sender,content,time);
+        appendMessage(sender, content, time, "ENVOYE");
+    }
+
+    /**
+     * Ajoute une bulle de message avec heure fournie (surcharge sans statut).
+     * Paramètres : sender – expéditeur ; content – contenu ; time – heure à afficher. Ne renvoie rien.
+     */
+    private void appendMessage(String sender, String content, String time) {
+        appendMessage(sender, content, time, "ENVOYE");
     }
 
     /**
      * Ajoute une bulle de message dans messageContainer (alignement gauche/droite selon expéditeur).
-     * Gère l'affichage des fichiers [FILE] avec ID et nom. Fait défiler la zone vers le bas.
-     * Paramètres : sender – expéditeur ; content – contenu ; time – heure à afficher. Ne renvoie rien.
+     * Gère l'affichage des fichiers [FILE] avec ID et nom, et les indicateurs ✓ / ✓✓ selon le statut (ENVOYE, RECU, LU).
+     * Fait défiler la zone vers le bas. Paramètres : sender, content, time, statut. Ne renvoie rien.
      */
-    private void appendMessage(String sender, String content, String time) {
+    private void appendMessage(String sender, String content, String time, String statut) {
         boolean isMine = sender.equals(username);
-        String prefix = sender.equals(username) ? "Vous" : sender;
         String displayContent = content;
         if (content.startsWith("[FILE]")) {
             int pipe = content.indexOf("|");
@@ -554,25 +583,31 @@ public class MessagingController {
             senderLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #7c3aed; -fx-font-weight: bold;");
             bubbleBox.getChildren().add(senderLabel);
         }
-        bubbleBox.getChildren().addAll(bubble, timeLabel);
+        bubbleBox.getChildren().add(bubble);
+        if (isMine) {
+            Label checkLabel = new Label("✓");
+            checkLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #9ca3af;");
+            // Mettre à jour selon le statut reçu
+            switch (statut) {
+                case "RECU" -> { checkLabel.setText("✓✓"); checkLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #9ca3af;"); }
+                case "LU"   -> { checkLabel.setText("✓✓"); checkLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #27ae60;"); }
+                default     -> { checkLabel.setText("✓");  checkLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #9ca3af;"); }
+            }
+            lastCheckLabel = checkLabel; // garde référence
+            HBox timeRow = new HBox(4, timeLabel, checkLabel);
+            timeRow.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+            bubbleBox.getChildren().add(timeRow);
+        } else {
+            bubbleBox.getChildren().add(timeLabel);
+        }
         bubbleBox.setMaxWidth(420);
-        bubbleBox.setAlignment(isMine
-                ? javafx.geometry.Pos.CENTER_RIGHT
-                : javafx.geometry.Pos.CENTER_LEFT
-        );
-
+        bubbleBox.setAlignment(isMine ? javafx.geometry.Pos.CENTER_RIGHT : javafx.geometry.Pos.CENTER_LEFT);
         HBox row = new HBox();
-        row.setAlignment(isMine
-                ? javafx.geometry.Pos.CENTER_RIGHT
-                : javafx.geometry.Pos.CENTER_LEFT
-        );
+        row.setAlignment(isMine ? javafx.geometry.Pos.CENTER_RIGHT : javafx.geometry.Pos.CENTER_LEFT);
         row.getChildren().add(bubbleBox);
-
         messageContainer.getChildren().add(row);
         scrollPane.layout();
         scrollPane.setVvalue(1.0);
-
-      //  area_messages.appendText("[" + time + "] " + prefix + ": " + displayContent + "\n");
     }
 
     /**
