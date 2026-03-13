@@ -13,6 +13,10 @@ import java.util.Map;
 public final class JpaUtil {
 
     private static EntityManagerFactory emf;
+    /**
+     * Charge le pilote PostgreSQL. Lève IllegalStateException si le driver est introuvable.
+     * Aucun paramètre. Ne renvoie rien.
+     */
     private static void ensureDriverLoaded() {
         try {
             Class.forName("org.postgresql.Driver");
@@ -21,6 +25,11 @@ public final class JpaUtil {
         }
     }
 
+    /**
+     * Retourne l'EntityManagerFactory JPA (singleton). Au premier appel, crée la factory en utilisant persistence.xml ;
+     * les variables d'environnement JDBC_URL, DB_USER, DB_PASSWORD peuvent surcharger la config.
+     * Aucun paramètre. Retourne l'EntityManagerFactory. Lève une exception si la BDD est inaccessible.
+     */
     public static synchronized EntityManagerFactory getEntityManagerFactory() {
         if (emf == null) {
             String jdbcUrl = System.getenv("JDBC_URL");

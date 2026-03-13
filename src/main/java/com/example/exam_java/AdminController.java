@@ -37,6 +37,10 @@ public class AdminController implements ServerConnection.MessageListener {
     private FilteredList<AdminUserRow> usersFiltered;
     private boolean listRequestRetried;
 
+    /**
+     * Initialise l'écran d'administration : enregistre le listener, configure le tableau, demande LIST_PENDING et ADMIN_LIST_USERS.
+     * Paramètres : conn – connexion serveur ; onClose – callback appelé à la fermeture (retour messagerie). Ne renvoie rien.
+     */
     public void init(ServerConnection conn, Runnable onClose) {
         this.connection = conn;
         this.onClose = onClose;
@@ -47,11 +51,19 @@ public class AdminController implements ServerConnection.MessageListener {
         connection.send(Protocol.ADMIN_LIST_USERS);
     }
 
+    /**
+     * Reçoit les messages du serveur (interface MessageListener). Délègue à handleMessage sur le thread JavaFX.
+     * Paramètre : line – ligne reçue. Ne renvoie rien.
+     */
     @Override
     public void onMessage(String line) {
         Platform.runLater(() -> handleMessage(line));
     }
 
+    /**
+     * Appelé en cas de perte de connexion. Affiche "Déconnecté: ..." dans les labels de statut.
+     * Paramètre : reason – raison de la déconnexion. Ne renvoie rien.
+     */
     @Override
     public void onDisconnected(String reason) {
         Platform.runLater(() -> {
@@ -60,6 +72,10 @@ public class AdminController implements ServerConnection.MessageListener {
         });
     }
 
+    /**
+     * Traite les réponses serveur : PENDING_USERS, VALIDATE_SUCCESS/FAIL, USERS_LIST, USER_CREATED/BLOCKED/UNBLOCKED/DELETED, ERROR.
+     * Met à jour les listes et les labels de statut. Paramètre : line – ligne reçue. Ne renvoie rien.
+     */
     private void handleMessage(String line) {
         String[] parts = Protocol.parse(line);
         if (parts.length == 0) return;
@@ -135,6 +151,10 @@ public class AdminController implements ServerConnection.MessageListener {
         }
     }
 
+    /**
+     * Retourne le libellé affiché pour un rôle (Organisateur, Bénévole, Membre).
+     * Paramètre : r – le rôle. Retourne une chaîne en français.
+     */
     private static String roleLabel(Role r) {
         return r == null ? "Membre" : switch (r) {
             case ORGANISATEUR -> "Organisateur";
@@ -143,6 +163,10 @@ public class AdminController implements ServerConnection.MessageListener {
         };
     }
 
+    /**
+     * Configure le TableView des utilisateurs : FilteredList, colonnes, placeholder, listener de sélection pour Bloquer/Débloquer.
+     * Aucun paramètre. Ne renvoie rien.
+     */
     private void setupTable() {
         usersFiltered = new FilteredList<>(usersList, p -> true);
         table_users.setItems(usersFiltered);
@@ -156,6 +180,10 @@ public class AdminController implements ServerConnection.MessageListener {
         table_users.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal) -> updateBlockUnblockButtons(newVal));
     }
 
+    /**
+     * Active/désactive les boutons Bloquer et Débloquer selon l'utilisateur sélectionné (admin non bloquable).
+     * Paramètre : selected – ligne sélectionnée ou null. Ne renvoie rien.
+     */
     private void updateBlockUnblockButtons(AdminUserRow selected) {
         if (btn_block == null || btn_unblock == null) return;
         if (selected == null || "admin".equals(selected.getUsername())) {
@@ -167,40 +195,68 @@ public class AdminController implements ServerConnection.MessageListener {
         }
     }
 
+    /**
+     * Appelé lors d'un clic sur le tableau utilisateurs. Met à jour l'état des boutons Bloquer/Débloquer.
+     * Paramètre : event – événement souris. Ne renvoie rien.
+     */
     @FXML
     void onTableUserSelected(MouseEvent event) {
         updateBlockUnblockButtons(table_users.getSelectionModel().getSelectedItem());
     }
 
+    /**
+     * Affiche un message dans le label de statut de la section validation (couleur selon succès/échec).
+     * Paramètres : msg – texte ; success – true = gris, false = rouge. Ne renvoie rien.
+     */
     private void setValidationStatus(String msg, boolean success) {
         if (lbl_validation_status == null) return;
         lbl_validation_status.setText(msg);
         lbl_validation_status.setStyle(success ? "-fx-text-fill: #6b7280;" : "-fx-text-fill: #dc2626;");
     }
 
+    /**
+     * Affiche un message dans le label de statut de la section gestion des utilisateurs.
+     * Paramètres : msg – texte ; success – true = gris, false = rouge. Ne renvoie rien.
+     */
     private void setGestionStatus(String msg, boolean success) {
         if (lbl_gestion_status == null) return;
         lbl_gestion_status.setText(msg);
         lbl_gestion_status.setStyle(success ? "-fx-text-fill: #6b7280;" : "-fx-text-fill: #dc2626;");
     }
 
+    /**
+     * Ferme l'écran d'administration et exécute le callback onClose (retour à la messagerie).
+     * Aucun paramètre. Ne renvoie rien.
+     */
     @FXML
     void onClose() {
         if (onClose != null) onClose.run();
     }
 
+    /**
+     * Mémorise l'utilisateur en attente sélectionné dans la liste (pour validation).
+     * Extrait le username du libellé "username (rôle)". Paramètre : event – clic. Ne renvoie rien.
+     */
     @FXML
     void onPendingSelected(MouseEvent event) {
         String item = list_pending.getSelectionModel().getSelectedItem();
         if (item != null) selectedPendingUser = item.split(" ")[0];
     }
 
+    /**
+     * Rafraîchit la liste des utilisateurs en attente de validation (LIST_PENDING).
+     * Aucun paramètre. Ne renvoie rien.
+     */
     @FXML
     void onRefreshPending() {
         connection.send(Protocol.LIST_PENDING);
         setValidationStatus("", true);
     }
 
+    /**
+     * Valide l'utilisateur sélectionné dans la liste "en attente" (VALIDATE). Réservé à l'admin.
+     * Affiche une erreur si aucun utilisateur sélectionné. Aucun paramètre. Ne renvoie rien.
+     */
     @FXML
     void onValidate() {
         if (selectedPendingUser == null) {
@@ -211,6 +267,10 @@ public class AdminController implements ServerConnection.MessageListener {
         setValidationStatus("Validation en cours...", true);
     }
 
+    /**
+     * Filtre le tableau des utilisateurs selon le texte saisi dans txt_search (username ou rôle).
+     * Paramètre : event – frappe clavier. Ne renvoie rien.
+     */
     @FXML
     void onSearchKey(KeyEvent event) {
         if (usersFiltered == null) return;
@@ -220,6 +280,11 @@ public class AdminController implements ServerConnection.MessageListener {
                 || row.getRole().toLowerCase().contains(q));
     }
 
+    /**
+     * Ouvre des dialogues pour créer un utilisateur : nom, mot de passe, rôle puis envoie ADMIN_CREATE_USER.
+     * Réservé à l'admin. Si l'utilisateur annule une étape, la création est abandonnée.
+     * Aucun paramètre. Ne renvoie rien.
+     */
     @FXML
     void onCreateUser() {
         TextInputDialog d1 = new TextInputDialog();
@@ -248,6 +313,10 @@ public class AdminController implements ServerConnection.MessageListener {
         setGestionStatus("Création en cours...", true);
     }
 
+    /**
+     * Bloque l'utilisateur sélectionné dans le tableau (ADMIN_BLOCK_USER). Confirmation demandée. Admin non bloquable.
+     * Affiche un message d'erreur si aucune sélection ou si admin. Aucun paramètre. Ne renvoie rien.
+     */
     @FXML
     void onBlockUser() {
         AdminUserRow row = table_users.getSelectionModel().getSelectedItem();
@@ -265,6 +334,10 @@ public class AdminController implements ServerConnection.MessageListener {
         }
     }
 
+    /**
+     * Débloque l'utilisateur sélectionné (ADMIN_UNBLOCK_USER). Affiche une erreur si aucune sélection.
+     * Aucun paramètre. Ne renvoie rien.
+     */
     @FXML
     void onUnblockUser() {
         AdminUserRow row = table_users.getSelectionModel().getSelectedItem();
@@ -276,6 +349,10 @@ public class AdminController implements ServerConnection.MessageListener {
         setGestionStatus("Déblocage en cours...", true);
     }
 
+    /**
+     * Supprime définitivement l'utilisateur sélectionné (ADMIN_DELETE_USER). Confirmation demandée. Admin non supprimable.
+     * Affiche une erreur si aucune sélection ou si admin. Aucun paramètre. Ne renvoie rien.
+     */
     @FXML
     void onDeleteUser() {
         AdminUserRow row = table_users.getSelectionModel().getSelectedItem();

@@ -3,7 +3,8 @@ package com.example.exam_java.model;
 import javafx.beans.property.*;
 
 /**
- * Ligne affichée dans le tableau de gestion des utilisateurs (admin).
+ * Ligne affichée dans le tableau de gestion des utilisateurs (écran admin).
+ * Contient : username, rôle, compte actif/inactif, statut en ligne/hors ligne.
  */
 public class AdminUserRow {
 
@@ -14,6 +15,10 @@ public class AdminUserRow {
     private final StringProperty compteActif = new SimpleStringProperty(); // "Actif" ou "Inactif"
     private final StringProperty status = new SimpleStringProperty(); // "En ligne" / "Hors ligne"
 
+    /**
+     * Crée une ligne pour le tableau admin.
+     * Paramètres : username – nom ; role – libellé du rôle ; validated – compte validé ; blocked – compte bloqué ; online – actuellement connecté.
+     */
     public AdminUserRow(String username, String role, boolean validated, boolean blocked, boolean online) {
         this.username.set(username);
         this.role.set(role);

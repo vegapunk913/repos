@@ -53,10 +53,18 @@ public final class Protocol {
     public static final String SEP = "|";
     public static final String END = "\n";
 
+    /**
+     * Construit une ligne de protocole à envoyer au serveur (commande et paramètres séparés par |, terminée par \n).
+     * Paramètres : parts – commande en premier (ex. "LOGIN"), puis les paramètres. Retourne la chaîne à envoyer.
+     */
     public static String build(String... parts) {
         return String.join(SEP, parts) + END;
     }
 
+    /**
+     * Décompose une ligne reçue en tableau de chaînes (séparateur |). Utilisé pour traiter les réponses serveur.
+     * Paramètre : line – ligne reçue (null ou vide → tableau vide). Retourne les parties (commande, param1, param2, ...).
+     */
     public static String[] parse(String line) {
         if (line == null || line.isBlank()) return new String[0];
         return line.trim().split("\\" + SEP);
